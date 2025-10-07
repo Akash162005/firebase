@@ -1,38 +1,47 @@
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/testDB');
+mongoose
+  .connect("mongodb://127.0.0.1:27017/productdb")
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.log(err));
 
-// Schema & Model
-const User = mongoose.model('User', { name: String, age: Number });
+// Schema and Model
+const ProductSchema = new mongoose.Schema({
+  name: String,
+  quantity: Number,
+});
+const Product = mongoose.model("Product", ProductSchema);
 
-// CREATE
-app.post('/users', async (req, res) => {
-  const user = new User(req.body);
-  await user.save();
-  res.send(user);
+// Routes
+app.get("/products", async (req, res) => {
+  const products = await Product.find();
+  res.json(products);
 });
 
-// READ
-app.get('/users', async (req, res) => {
-  const users = await User.find();
-  res.send(users);
+app.post("/products", async (req, res) => {
+  const product = new Product(req.body);
+  await product.save();
+  res.json(product);
 });
 
-// UPDATE
-app.put('/users/:id', async (req, res) => {
-  const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  res.send(user);
+app.put("/products/:id", async (req, res) => {
+  await Product.findByIdAndUpdate(req.params.id, req.body);
+  res.json({ message: "Updated" });
 });
 
-// DELETE
-app.delete('/users/:id', async (req, res) => {
-  await User.findByIdAndDelete(req.params.id);
-  res.send({ message: 'User deleted' });
+app.delete("/products/:id", async (req, res) => {
+  await Product.findByIdAndDelete(req.params.id);
+  res.json({ message: "Deleted" });
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+// Start server
+app.listen(3000, () =>
+  console.log("🚀 Server running on http://localhost:3000")
+);
