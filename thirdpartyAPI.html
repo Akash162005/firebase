@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simple Weather App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 50px auto;
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+    }
+    #weather {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Weather Checker</h2>
+  <input type="text" id="cityInput" placeholder="Enter city name" />
+  <button onclick="getWeather()">Get Weather</button>
+
+  <div id="weather"></div>
+
+  <script>
+    async function getWeather() {
+      const apiKey = 'b6595bf4c0273294c6e0aee327798b96';  // Replace with your OpenWeatherMap API key
+      const city = document.getElementById('cityInput').value.trim();
+      const weatherDiv = document.getElementById('weather');
+
+      if (!city) {
+        weatherDiv.textContent = 'Please enter a city name.';
+        return;
+      }
+
+      weatherDiv.textContent = 'Loading...';
+
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+        );
+
+        if (!response.ok) {
+          throw new Error('City not found');
+        }
+
+        const data = await response.json();
+
+        weatherDiv.innerHTML = `
+          <p>Temperature: ${data.main.temp} °C</p>
+          <p>Weather: ${data.weather[0].description}</p>
+          <p>Humidity: ${data.main.humidity}%</p>
+          <p>Wind Speed: ${data.wind.speed} m/s</p>
+        `;
+      } catch (error) {
+        weatherDiv.textContent = error.message;
+      }
+    }
+  </script>
+
+</body>
+</html>
+```
