@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ProductApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Product CRUD (Angular + MongoDB)</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+<body ng-controller="ProductCtrl">
+
+  <h2>🛒 Product Management</h2>
+
+  <form ng-submit="addProduct()">
+    <input type="text" ng-model="product.name" placeholder="Product Name" required>
+    <input type="number" ng-model="product.quantity" placeholder="Quantity" required>
+    <button type="submit">Add Product</button>
+  </form>
+
+  <h3>Product List</h3>
+  <table border="1" cellpadding="5">
+    <tr>
+      <th>Name</th>
+      <th>Quantity</th>
+      <th>Actions</th>
+    </tr>
+    <tr ng-repeat="p in products">
+      <td>
+        <input type="text" ng-model="p.name">
+      </td>
+      <td>
+        <input type="number" ng-model="p.quantity">
+      </td>
+      <td>
+        <button ng-click="updateProduct(p)">Update</button>
+        <button ng-click="deleteProduct(p._id)">Delete</button>
+      </td>
+    </tr>
+  </table>
+
+  <script>
+    const app = angular.module('ProductApp', []);
+    app.controller('ProductCtrl', function($scope, $http) {
+
+      const API = 'http://localhost:3000/products';
+
+      // Load all products
+      function loadProducts() {
+        $http.get(API).then(res => $scope.products = res.data);
+      }
+      loadProducts();
+
+      // Add new product
+      $scope.addProduct = function() {
+        $http.post(API, $scope.product).then(() => {
+          $scope.product = {};
+          loadProducts();
+        });
+      };
+
+      // Update product
+      $scope.updateProduct = function(p) {
+        $http.put(API + '/' + p._id, p).then(loadProducts);
+      };
+
+      // Delete product
+      $scope.deleteProduct = function(id) {
+        $http.delete(API + '/' + id).then(loadProducts);
+      };
+    });
+  </script>
+
+</body>
+</html>
